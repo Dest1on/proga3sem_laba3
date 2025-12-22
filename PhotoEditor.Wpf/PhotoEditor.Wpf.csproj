@@ -7,5 +7,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\PhotoEditor.Core\PhotoEditor.Core.csproj" />
+  </ItemGroup>
 
 </Project>
