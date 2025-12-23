@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PhotoEditor.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e7b6abf6aea6aefab523a67721c3d7a99c4ed89b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ab79dec19cc7f8dbe8da0d992e01057df3225abd")]
 [assembly: System.Reflection.AssemblyProductAttribute("PhotoEditor.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PhotoEditor.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
