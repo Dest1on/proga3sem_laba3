@@ -7,36 +7,41 @@ using PhotoEditor.Wpf.Adapters;
 
 namespace PhotoEditor.Wpf.ViewModels
 {
-    private readonly IWpfImageAdapter _imageAdapter;
-    private BitmapSource? _currentBitmap;
-    private IImage? _currentImage;
+    public class MainViewModel : INotifyPropertyChanged
+    { 
+        private readonly IWpfImageAdapter _imageAdapter;
+        private BitmapSource? _currentBitmap;
+        private IImage? _currentImage;
 
-    public MainViewModel(IwpfImageAdapter imageAdapter)
-    {
-        _imageAdapter=imageAdapter;
-        OpenImageCommand=new RelayCommand(OpenImage);
-    }
-
-    public BitmapSource? _currentBitmap
-    {
-        get => _currentBitmap;
-        private set
+        public MainViewModel(IwpfImageAdapter imageAdapter)
         {
-            _currentBitmap=value;
-            OnPropertyChanged();
+            _imageAdapter=imageAdapter;
+            OpenImageCommand=new RelayCommand(OpenImage);
         }
-    }
 
-    private void OpenImage()
-    {
+        public BitmapSource? CurrentBitmap
+        {
+            get => _currentBitmap;
+            private set
+            {
+                _currentBitmap=value;
+                OnPropertyChanged();
+            }
+        }
 
-    }
+        public ICommand OpenImageCommand { get; }
 
-    public event PropertyChangedEventHandler? PropertyChanged;
+        private void OpenImage()
+        {
 
-    private void OnPropertyChanged([CallerMemberName] string? propertyName=null)
-    {
-        PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(propertyName));
-        
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string? propertyName=null)
+        {
+            PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(propertyName));
+
+        }
     }
 }
