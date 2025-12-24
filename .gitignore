@@ -1,0 +1,47 @@
+# =====================
+# .NET / Visual Studio
+# =====================
+
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+
+# IDEs
+.vs/
+.vscode/
+.idea/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.assets.json
+project.nuget.cache
+*.nuget.dgspec.json
+*.nuget.g.props
+*.nuget.g.targets
+
+# Build results
+*.dll
+*.exe
+*.pdb
+
+# Cache
+*.cache
+*.tmp
+
+# Assembly / auto-generated
+*.AssemblyAttributes.cs
+*.AssemblyInfo.cs
+GeneratedMSBuildEditorConfig.editorconfig
+
+# OS
+.DS_Store
+Thumbs.db
