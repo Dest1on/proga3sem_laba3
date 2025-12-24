@@ -10,7 +10,7 @@ namespace PhotoEditor.Wpf.Adapters
     {
         public BitmapSource Convert(IImage image)
         {
-            var bitmap=new WriteableBitmap(image.Width,image.Height,96,96,PixelFormats.Bra32,null)
+            var bitmap=new WriteableBitmap(image.Width,image.Height,96,96,PixelFormats.Bra32,null);
             bitmap.Lock();
 
             /// Используем небезопасный код для прямого доступа к памяти(через указатели)
