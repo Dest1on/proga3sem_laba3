@@ -1,3 +1,6 @@
+using Microsoft.Win32;
+using System;
+using System.IO;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -40,7 +43,26 @@ namespace PhotoEditor.Wpf.ViewModels
 
         private void OpenImage()
         {
+            OpenFileDialog dialog = new OpenFileDialog();
+            dialog.Filter = "Images(*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
 
+            bool? result = dialog.ShowDialog();
+
+            if (result!=true) return;
+
+            BitmapImage bitmap = new BitmapImage();
+
+            using (FileStream stream = new FileStream(dialog.FileName, FileMode.Open, FileAccess.Read))
+            {
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+            }
+
+            bitmap.Freeze();
+
+            CurrentBitmap = bitmap;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
