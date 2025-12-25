@@ -3,17 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:PhotoEditor.Wpf.ViewModels"
         Title="Photo Editor"
-        Width="800"
+        Width="900"
         Height="600">
 
     <Window.DataContext>
         <vm:MainViewModel />
     </Window.DataContext>
 
-    <Grid>
-        <TextBlock Text="Photo Editor"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="24" />
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Button Content="Открыть изображение"
+                Command="{Binding OpenImageCommand}"
+                Padding="10"
+                HorizontalAlignment="Left"/>
+
+        <Border Grid.Row="1"
+                Margin="0,10,0,0"
+                BorderThickness="1"
+                BorderBrush="Gray">
+
+            <Image Source="{Binding CurrentBitmap}"
+                   Stretch="Uniform"/>
+        </Border>
     </Grid>
 </Window>
