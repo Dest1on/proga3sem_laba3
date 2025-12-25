@@ -10,35 +10,27 @@ namespace PhotoEditor.Wpf.Adapters
     {
         public BitmapSource Convert(IImage image)
         {
-            var bitmap=new WriteableBitmap(image.Width,image.Height,96,96,PixelFormats.Bra32,null);
-            bitmap.Lock();
+            var bitmap = new WriteableBitmap(image.Width, image.Height, 96, 96, PixelFormats.Bgra32, null);
 
-            /// Используем небезопасный код для прямого доступа к памяти(через указатели)
-            unsafe
+            var pixels = new byte[image.Width * image.Height * 4]; // 4 байта на пиксель
+            for (int y = 0; y < image.Height; y++)
             {
-                var buffer=(byte*)bitmap.BackBuffer;
-                for (int y=0;y<image.Height;y++)
+                for (int x = 0; x < image.Width; x++)
                 {
-                    for (int x=0;x<image.Width;x++)
-                    {
-                        var color=image.GetPixel(x,y);
+                    var color = image.GetPixel(x, y);
+                    int index = (y * image.Width + x) * 4;
 
-                        int index=y*bitmap.BackBufferStride+x*4;
-
-                        buffer[index+0]=color.B;
-                        buffer[index+1]=color.G;
-                        buffer[index+2]=color.R;
-                        buffer[index+3]=color.A;
-                    }
+                    pixels[index + 0] = color.B;
+                    pixels[index + 1] = color.G;
+                    pixels[index + 2] = color.R;
+                    pixels[index + 3] = color.A;
                 }
             }
 
-            bitmap.AddDirtyRect(new Int32Rect(0,0,image.Width,image.Height));
-            bitmap.Unlock();
+            bitmap.WritePixels(new Int32Rect(0, 0, image.Width, image.Height),pixels, image.Width * 4, 0);
 
             return bitmap;
-
-
         }
+ 
     }
 }
