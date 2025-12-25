@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System;
+using System.Drawing;
 using System.IO;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -63,6 +64,28 @@ namespace PhotoEditor.Wpf.ViewModels
             bitmap.Freeze();
 
             CurrentBitmap = bitmap;
+
+            InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
+            int stride = bitmap.PixelWidth * 4;
+            byte[] pixels = new byte[bitmap.PixelHeight * stride];
+            bitmap.CopyPixels(pixels, stride, 0);
+
+            for (int y = 0; y < bitmap.PixelHeight; y++)
+            {
+               for (int x = 0; x < bitmap.PixelWidth; x++)
+                {
+                    int index = y * stride + x * 4;
+
+                    byte b = pixels[index];
+                    byte g = pixels[index + 1];
+                    byte r = pixels[index + 2];
+                    byte a = pixels[index + 3];
+                    
+                    image.SetPixel(x, y, Color.FromArgb(a, r, g, b));
+
+                } 
+            }
+            _currentImage = image;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
