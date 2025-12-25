@@ -4,6 +4,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using PhotoEditor.Core.Images;
 using PhotoEditor.Wpf.Adapters;
+using PhotoEditor.Wpf.Commands;
 
 namespace PhotoEditor.Wpf.ViewModels
 {
@@ -13,10 +14,16 @@ namespace PhotoEditor.Wpf.ViewModels
         private BitmapSource? _currentBitmap;
         private IImage? _currentImage;
 
-        public MainViewModel(IwpfImageAdapter imageAdapter)
+        public MainViewModel(IWpfImageAdapter imageAdapter)
         {
-            _imageAdapter=imageAdapter;
+            _imageAdapter = imageAdapter;
             OpenImageCommand=new RelayCommand(OpenImage);
+        }
+
+        public MainViewModel()
+        {
+            _imageAdapter = new WpfImageAdapter();
+            OpenImageCommand = new RelayCommand(OpenImage);
         }
 
         public BitmapSource? CurrentBitmap
@@ -24,7 +31,7 @@ namespace PhotoEditor.Wpf.ViewModels
             get => _currentBitmap;
             private set
             {
-                _currentBitmap=value;
+                _currentBitmap = value;
                 OnPropertyChanged();
             }
         }
