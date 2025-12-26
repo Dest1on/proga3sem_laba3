@@ -153,7 +153,15 @@ namespace PhotoEditor.Wpf.ViewModels
             bool? result = dialog.ShowDialog();
             if (result != true)  return;
 
-            //...
+            // Сохраняем BitmapSource в PNG
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(_currentBitmap));
+
+            using (var stream = new FileStream(dialog.FileName, FileMode.Create))
+            {
+                encoder.Save(stream);
+            }
+
         }
 
         private void DeleteImage()
