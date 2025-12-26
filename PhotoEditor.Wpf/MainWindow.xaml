@@ -7,6 +7,11 @@
         Height="600"
         WindowStartupLocation="CenterScreen">
 
+
+        <Window.DataContext> 
+        <vm:MainViewModel />
+        </Window.DataContext>
+
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
