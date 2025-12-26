@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoEditor.Wpf", "PhotoEdi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoEditor.Core.Tests", "PhotoEditor.Core.Tests\PhotoEditor.Core.Tests.csproj", "{9A9A4B98-767A-4F1D-ACCF-80F965012BCE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotoEditor.Infrastructure", "PhotoEditor\PhotoEditor.Infrastructure\PhotoEditor.Infrastructure.csproj", "{26D2E6E3-B17D-45FC-AFCF-25E372634253}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,11 +59,24 @@ Global
 		{9A9A4B98-767A-4F1D-ACCF-80F965012BCE}.Release|x64.Build.0 = Release|Any CPU
 		{9A9A4B98-767A-4F1D-ACCF-80F965012BCE}.Release|x86.ActiveCfg = Release|Any CPU
 		{9A9A4B98-767A-4F1D-ACCF-80F965012BCE}.Release|x86.Build.0 = Release|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Debug|x64.Build.0 = Debug|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Debug|x86.Build.0 = Debug|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Release|Any CPU.Build.0 = Release|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Release|x64.ActiveCfg = Release|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Release|x64.Build.0 = Release|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Release|x86.ActiveCfg = Release|Any CPU
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D81BC727-9C8F-4BED-96FE-48DA8260BB83} = {2F4A8677-B08C-4171-BD80-24492EC8D519}
+		{26D2E6E3-B17D-45FC-AFCF-25E372634253} = {2F4A8677-B08C-4171-BD80-24492EC8D519}
 	EndGlobalSection
 EndGlobal
