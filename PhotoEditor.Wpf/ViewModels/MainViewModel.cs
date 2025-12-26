@@ -63,7 +63,8 @@ namespace PhotoEditor.Wpf.ViewModels
 
             bitmap.Freeze();
 
-            CurrentBitmap = bitmap;
+            if (_currentImage == null) return;
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
 
             InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
             int stride = bitmap.PixelWidth * 4;
