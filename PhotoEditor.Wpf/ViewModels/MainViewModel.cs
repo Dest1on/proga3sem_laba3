@@ -59,6 +59,7 @@ namespace PhotoEditor.Wpf.ViewModels
         public ICommand AddTextCommand { get; }
         public ICommand CreateCollageCommand { get; }
         public ICommand EditPixelCommand { get; }
+    
 
         private void OpenImage()
         {

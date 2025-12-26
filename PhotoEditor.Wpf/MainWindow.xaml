@@ -4,58 +4,152 @@
         xmlns:vm="clr-namespace:PhotoEditor.Wpf.ViewModels"
         Title="Photo Editor"
         Width="900"
-        Height="600">
+        Height="600"
+        WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
-        <vm:MainViewModel />
-    </Window.DataContext>
-
-    <Grid Margin="10">
+    <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal"
-            HorizontalAlignment="Left"
-            Margin="0,0,0,10">
+        <!-- Верхняя панель - инструменты -->
+        <Border Grid.Row="0" 
+                Background="#F5F5F5" 
+                BorderBrush="#E0E0E0" 
+                BorderThickness="0,0,0,1"
+                Padding="10">
+            <StackPanel Orientation="Horizontal">
+                <Button Command="{Binding CropCommand}" 
+                        Padding="12,8"
+                        Margin="0,0,10,0"
+                        IsEnabled="{Binding HasImage}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✂️" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Обрезать" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
-            <Button Content="Открыть"
-                    Command="{Binding OpenImageCommand}"
-                    Margin="0,0,5,0"/>
+                <Button Command="{Binding RotateCommand}" 
+                        Padding="12,8"
+                        Margin="0,0,10,0"
+                        IsEnabled="{Binding HasImage}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔄" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Повернуть" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
-            <Button Content="Обрезать"
-                    Command="{Binding CropCommand}"
-                    Margin="0,0,5,0"/>
+                <Button Command="{Binding ApplyFilterCommand}" 
+                        Padding="12,8"
+                        Margin="0,0,10,0"
+                        IsEnabled="{Binding HasImage}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🎨" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Фильтр" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
-            <Button Content="Повернуть"
-                    Command="{Binding RotateCommand}"
-                    Margin="0,0,5,0"/>
+                <Button Command="{Binding AddTextCommand}" 
+                        Padding="12,8"
+                        Margin="0,0,10,0"
+                        IsEnabled="{Binding HasImage}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="A" FontSize="16" Margin="0,0,6,0" FontWeight="Bold"/>
+                        <TextBlock Text="Текст" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
-            <Button Content="Фильтр"
-                    Command="{Binding ApplyFilterCommand}"
-                    Margin="0,0,5,0"/>
+                <Button Command="{Binding CreateCollageCommand}" 
+                        Padding="12,8"
+                        Margin="0,0,10,0"
+                        IsEnabled="{Binding HasImage}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🖼️" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Коллаж" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
 
-            <Button Content="Текст"
-                    Command="{Binding AddTextCommand}"
-                    Margin="0,0,5,0"/>
+                <Button Command="{Binding EditPixelCommand}" 
+                        Padding="12,8"
+                        Margin="0,0,10,0"
+                        IsEnabled="{Binding HasImage}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="✏️" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Рисовать" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </Border>
 
-            <Button Content="Коллаж"
-                    Command="{Binding CreateCollageCommand}"
-                    Margin="0,0,5,0"/>
-
-            <Button Content="Рисовать"
-                    Command="{Binding EditPixelCommand}"/>
-        </StackPanel>
-
-
-        <Border Grid.Row="1"
-                Margin="0,10,0,0"
-                BorderThickness="1"
-                BorderBrush="Gray">
+        <!-- Область изображения -->
+        <Border Grid.Row="1" 
+                Margin="10"
+                Background="#FAFAFA"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1">
 
             <Image Source="{Binding CurrentBitmap}"
                    Stretch="Uniform"/>
+        </Border>
+
+        <!-- Нижняя панель - файловые операции -->
+        <Border Grid.Row="2" 
+                Background="#F5F5F5" 
+                BorderBrush="#E0E0E0" 
+                BorderThickness="0,1,0,0"
+                Padding="10">
+            <Grid>
+                <!-- Открыть -->
+                <Button Command="{Binding OpenImageCommand}" 
+                        Padding="12,8"
+                        Width="120"
+                        HorizontalAlignment="Left"
+                        Background="#4FC3F7"
+                        BorderBrush="#03A9F4"
+                        BorderThickness="1"
+                        Foreground="White">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📂" FontSize="16" Margin="0,0,6,0"/>
+                        <TextBlock Text="Открыть" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+      
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <!-- Сохранить  -->
+                    <Button Command="{Binding SaveCommand}" 
+                            Padding="12,8"
+                            Margin="0,0,10,0"
+                            Width="120"
+                            Background="#81C784"
+                            BorderBrush="#66BB6A"
+                            BorderThickness="1"
+                            Foreground="White"
+                            IsEnabled="{Binding HasImage}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="💾" FontSize="16" Margin="0,0,6,0"/>
+                            <TextBlock Text="Сохранить" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Удалить -->
+                    <Button Command="{Binding DeleteImageCommand}" 
+                            Padding="12,8"
+                            Width="120"
+                            Background="#E57373"
+                            BorderBrush="#EF5350"
+                            BorderThickness="1"
+                            Foreground="White"
+                            IsEnabled="{Binding HasImage}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="🗑️" FontSize="16" Margin="0,0,6,0"/>
+                            <TextBlock Text="Удалить" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Window>
