@@ -15,6 +15,13 @@ using PhotoEditor.Wpf.Views;
 
 namespace PhotoEditor.Wpf.ViewModels
 {
+     public enum FilterType
+        {
+            None,
+            BrightnessPlus50,
+            BrightnessMinus50
+        }
+
     public class MainViewModel : INotifyPropertyChanged
     { 
         private readonly IWpfImageAdapter _imageAdapter;
@@ -77,6 +84,18 @@ namespace PhotoEditor.Wpf.ViewModels
             }
         }
 
+        private FilterType _selectedFilter = FilterType.None;
+        public FilterType SelectedFilter
+        {
+            get => _selectedFilter;
+            set
+            {
+                _selectedFilter = value;
+                OnPropertyChanged();
+                ApplySelectedFilter();
+            }
+        }
+
 
         private void OpenImage()
         {
@@ -99,7 +118,6 @@ namespace PhotoEditor.Wpf.ViewModels
             bitmap.Freeze();
 
             InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
-
             int stride = bitmap.PixelWidth * 4;
             byte[] pixels = new byte[bitmap.PixelHeight * stride];
             bitmap.CopyPixels(pixels, stride, 0);
@@ -167,6 +185,7 @@ namespace PhotoEditor.Wpf.ViewModels
 
         private void ApplyFilter()
         {
+            ApplySelectedFilter();
             
         }
 
@@ -193,6 +212,8 @@ namespace PhotoEditor.Wpf.ViewModels
 
         }
 
+        ///Обрезка по шаблону
+       
         private CropOperation CreateCropOperation(CropTemplate template)
         {
             int width = _currentImage!.Width;
@@ -221,8 +242,31 @@ namespace PhotoEditor.Wpf.ViewModels
             
                 default:
                     return new CropOperation(0, 0, width, height);
-    }
-}
+            }
+        }
+
+        ///Применение фильтра
+
+        private void ApplySelectedFilter()
+        {
+            if (_currentImage == null) return;
+
+            var dialog = new FilterDialog();
+            if (dialog.ShowDialog() != true) return;
+
+            switch (dialog.SelectedFilter)
+            {
+                case FilterType.BrightnessPlus50:
+                    _currentImage = new BrightnessOperation(50).Apply(_currentImage);
+                    break;
+                case FilterType.BrightnessMinus50:
+                    _currentImage = new BrightnessOperation(-50).Apply(_currentImage);
+                    break;
+                case FilterType.None: return;
+            }
+
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
+        }
     }
 
     
