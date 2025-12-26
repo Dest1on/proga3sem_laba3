@@ -10,6 +10,7 @@
 
   <ItemGroup>
   <ProjectReference Include="..\PhotoEditor\PhotoEditor.Core\PhotoEditor.Core.csproj"/>
+  <ProjectReference Include="..\PhotoEditor\PhotoEditor.Infrastructure\PhotoEditor.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

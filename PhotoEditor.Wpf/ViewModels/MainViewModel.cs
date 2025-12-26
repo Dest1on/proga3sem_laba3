@@ -13,6 +13,8 @@ using PhotoEditor.Core.Operations;
 using PhotoEditor.Wpf.Views;
 using PhotoEditor.Core;
 using PhotoEditor.Core.Project;
+using PhotoEditor.Infrastructure;
+
 
 
 namespace PhotoEditor.Wpf.ViewModels
@@ -37,6 +39,7 @@ namespace PhotoEditor.Wpf.ViewModels
         {
             _imageAdapter = imageAdapter;
             OpenImageCommand=new RelayCommand(OpenImage);
+            OpenProjectCommand = new RelayCommand(OpenProject);
             CropCommand = new RelayCommand(Crop);
             RotateCommand = new RelayCommand(Rotate);
             ApplyFilterCommand = new RelayCommand(ApplyFilter);
@@ -45,12 +48,14 @@ namespace PhotoEditor.Wpf.ViewModels
             EditPixelCommand = new RelayCommand(EditPixel);
             SaveCommand = new RelayCommand(Save);
             DeleteImageCommand = new RelayCommand(DeleteImage);
+            
         }
 
         public MainViewModel()
         {
             _imageAdapter = new WpfImageAdapter();
             OpenImageCommand = new RelayCommand(OpenImage);
+            OpenProjectCommand = new RelayCommand(OpenProject);
             CropCommand = new RelayCommand(Crop);
             RotateCommand = new RelayCommand(Rotate);
             ApplyFilterCommand = new RelayCommand(ApplyFilter);
@@ -80,6 +85,8 @@ namespace PhotoEditor.Wpf.ViewModels
         public ICommand EditPixelCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand DeleteImageCommand { get; }
+        public ICommand OpenProjectCommand { get; }
+
 
         public bool HasImage
         {
@@ -159,6 +166,24 @@ namespace PhotoEditor.Wpf.ViewModels
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
             OnPropertyChanged(nameof(HasImage));
         }
+
+        private void OpenProject()
+        {
+            OpenFileDialog dialog = new OpenFileDialog
+            {
+                Filter = "Project (*.json)|*.json"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            var storage = new ProjectFileStorage(new JsonProjectSerializer());
+
+            _project = storage.Load(dialog.FileName);
+
+            RestoreActiveImage();
+        }
+
 
         private void Save()
         {
@@ -327,6 +352,91 @@ namespace PhotoEditor.Wpf.ViewModels
 
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
         }
+        
+        private void RestoreActiveImage()
+        {
+            if (_project == null) return;
+            if (_project.ActiveAssetId == Guid.Empty) return;
+
+            _activeAsset = _project.Assets
+                .FirstOrDefault(a => a.Id == _project.ActiveAssetId);
+
+            if (_activeAsset == null) return;
+            if (!File.Exists(_activeAsset.SourcePath)) return;
+
+            // 1. Загружаем исходное изображение
+            BitmapImage bitmap = new BitmapImage();
+            using (FileStream stream = new FileStream(_activeAsset.SourcePath, FileMode.Open, FileAccess.Read))
+            {
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+            }
+            bitmap.Freeze();
+
+            InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
+            int stride = bitmap.PixelWidth * 4;
+            byte[] pixels = new byte[bitmap.PixelHeight * stride];
+            bitmap.CopyPixels(pixels, stride, 0);
+
+            for (int y = 0; y < bitmap.PixelHeight; y++)
+            {
+                for (int x = 0; x < bitmap.PixelWidth; x++)
+                {
+                    int index = y * stride + x * 4;
+                    image.SetPixel(
+                        x, y,
+                        new PixelColor(
+                            pixels[index + 2],
+                            pixels[index + 1],
+                            pixels[index],
+                            pixels[index + 3]
+                        )
+                    );
+                }
+            }
+
+            IImage current = image;
+
+            // 2. Применяем операции по порядку
+            var operations = _project.Operations
+                .Where(o => o.AssetId == _activeAsset.Id)
+                .OrderBy(o => o.AppliedAt);
+
+            foreach (var op in operations)
+            {
+                current = ApplyOperation(current, op);
+            }
+
+            _currentImage = current;
+
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
+            OnPropertyChanged(nameof(HasImage));
+        }
+
+
+        private IImage ApplyOperation(IImage image, OperationRecord record)
+        {
+            switch (record.OperationType)
+            {
+                case "Brightness":
+                    int delta = int.Parse(record.Parameters.Split('=')[1]);
+                    return new BrightnessOperation(delta).Apply(image);
+
+                case "Crop":
+                    var template = Enum.Parse<CropTemplate>(
+                        record.Parameters.Split('=')[1]
+                    );
+                    var cropOp = CreateCropOperation(template);
+                    return cropOp.Apply(image);
+
+                default:
+                    return image;
+            }
+        }
+
+
     }
 
     
