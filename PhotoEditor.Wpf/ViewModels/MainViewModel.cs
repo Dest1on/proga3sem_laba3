@@ -22,12 +22,24 @@ namespace PhotoEditor.Wpf.ViewModels
         {
             _imageAdapter = imageAdapter;
             OpenImageCommand=new RelayCommand(OpenImage);
+            CropCommand = new RelayCommand(Crop);
+            RotateCommand = new RelayCommand(Rotate);
+            ApplyFilterCommand = new RelayCommand(ApplyFilter);
+            AddTextCommand = new RelayCommand(AddText);
+            CreateCollageCommand = new RelayCommand(CreateCollage);
+            EditPixelCommand = new RelayCommand(EditPixel);
         }
 
         public MainViewModel()
         {
             _imageAdapter = new WpfImageAdapter();
             OpenImageCommand = new RelayCommand(OpenImage);
+            CropCommand = new RelayCommand(Crop);
+            RotateCommand = new RelayCommand(Rotate);
+            ApplyFilterCommand = new RelayCommand(ApplyFilter);
+            AddTextCommand = new RelayCommand(AddText);
+            CreateCollageCommand = new RelayCommand(CreateCollage);
+            EditPixelCommand = new RelayCommand(EditPixel);
         }
 
         public BitmapSource? CurrentBitmap
@@ -41,6 +53,12 @@ namespace PhotoEditor.Wpf.ViewModels
         }
 
         public ICommand OpenImageCommand { get; }
+        public ICommand CropCommand { get; }
+        public ICommand RotateCommand { get; }
+        public ICommand ApplyFilterCommand { get; }
+        public ICommand AddTextCommand { get; }
+        public ICommand CreateCollageCommand { get; }
+        public ICommand EditPixelCommand { get; }
 
         private void OpenImage()
         {
@@ -63,9 +81,6 @@ namespace PhotoEditor.Wpf.ViewModels
 
             bitmap.Freeze();
 
-            if (_currentImage == null) return;
-            CurrentBitmap = _imageAdapter.Convert(_currentImage);
-
             InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
             int stride = bitmap.PixelWidth * 4;
             byte[] pixels = new byte[bitmap.PixelHeight * stride];
@@ -87,6 +102,37 @@ namespace PhotoEditor.Wpf.ViewModels
                 } 
             }
             _currentImage = image;
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
+        }
+
+        private void Crop()
+        {
+            
+        }
+
+        private void Rotate()
+        {
+            
+        }
+
+        private void ApplyFilter()
+        {
+            
+        }
+
+        private void AddText()
+        {
+            
+        }
+
+        private void CreateCollage()
+        {
+            
+        }
+
+        private void EditPixel()
+        {
+            
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
