@@ -1,4 +1,4 @@
-using System.Drawing;
+using PhotoEditor.Core.Images;
 using System;
 
 namespace PhotoEditor.Core.Images
@@ -8,7 +8,7 @@ namespace PhotoEditor.Core.Images
 
     public sealed class InMemoryImage : IImage
     {
-        private readonly Color[,] _pixels;
+        private readonly PixelColor[,] _pixels;
 
         public int Width { get; }
         public int Height { get; }
@@ -24,16 +24,16 @@ namespace PhotoEditor.Core.Images
             Width = width;
             Height = height;
 
-            _pixels = new Color[width, height];
+            _pixels = new PixelColor[width, height];
         }
 
-        public Color GetPixel(int x, int y)
+        public PixelColor GetPixel(int x, int y)
         {
             ValidateCoordinates(x, y);
             return _pixels[x, y];
         }
 
-        public void SetPixel(int x, int y, Color color)
+        public void SetPixel(int x, int y, PixelColor color)
         {
             ValidateCoordinates(x, y);
             _pixels[x, y] = color;

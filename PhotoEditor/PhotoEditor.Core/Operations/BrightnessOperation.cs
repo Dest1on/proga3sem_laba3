@@ -1,5 +1,5 @@
 using System;
-using System.Drawing;
+
 using PhotoEditor.Core.Images;
 
 namespace PhotoEditor.Core.Operations
@@ -34,7 +34,12 @@ namespace PhotoEditor.Core.Operations
                     var g = Clamp(pixel.G + _delta);
                     var b = Clamp(pixel.B + _delta);
 
-                    result.SetPixel(x, y, Color.FromArgb(pixel.A, r, g, b));
+                    result.SetPixel(
+                    x,
+                    y,
+                    new PixelColor((byte)r, (byte)g, (byte)b, pixel.A)
+                    );
+
                 }
             }
 
