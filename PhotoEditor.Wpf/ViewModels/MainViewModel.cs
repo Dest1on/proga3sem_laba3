@@ -28,6 +28,8 @@ namespace PhotoEditor.Wpf.ViewModels
             AddTextCommand = new RelayCommand(AddText);
             CreateCollageCommand = new RelayCommand(CreateCollage);
             EditPixelCommand = new RelayCommand(EditPixel);
+            SaveCommand = new RelayCommand(Save);
+            DeleteImageCommand = new RelayCommand(DeleteImage);
         }
 
         public MainViewModel()
@@ -40,6 +42,8 @@ namespace PhotoEditor.Wpf.ViewModels
             AddTextCommand = new RelayCommand(AddText);
             CreateCollageCommand = new RelayCommand(CreateCollage);
             EditPixelCommand = new RelayCommand(EditPixel);
+            SaveCommand = new RelayCommand(Save);
+            DeleteImageCommand = new RelayCommand(DeleteImage);
         }
 
         public BitmapSource? CurrentBitmap
@@ -59,6 +63,9 @@ namespace PhotoEditor.Wpf.ViewModels
         public ICommand AddTextCommand { get; }
         public ICommand CreateCollageCommand { get; }
         public ICommand EditPixelCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand DeleteImageCommand { get; }
+    
 
         private void OpenImage()
         {
@@ -66,8 +73,7 @@ namespace PhotoEditor.Wpf.ViewModels
             dialog.Filter = "Images(*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg";
 
             bool? result = dialog.ShowDialog();
-
-            if (result!=true) return;
+            if (result != true) return;
 
             BitmapImage bitmap = new BitmapImage();
 
@@ -82,13 +88,14 @@ namespace PhotoEditor.Wpf.ViewModels
             bitmap.Freeze();
 
             InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
+
             int stride = bitmap.PixelWidth * 4;
             byte[] pixels = new byte[bitmap.PixelHeight * stride];
             bitmap.CopyPixels(pixels, stride, 0);
 
             for (int y = 0; y < bitmap.PixelHeight; y++)
             {
-               for (int x = 0; x < bitmap.PixelWidth; x++)
+                for (int x = 0; x < bitmap.PixelWidth; x++)
                 {
                     int index = y * stride + x * 4;
 
@@ -96,14 +103,36 @@ namespace PhotoEditor.Wpf.ViewModels
                     byte g = pixels[index + 1];
                     byte r = pixels[index + 2];
                     byte a = pixels[index + 3];
-                    
-                    image.SetPixel(x, y, Color.FromArgb(a, r, g, b));
 
-                } 
-            }
+                    image.SetPixel(x, y, new PixelColor(r, g, b, a));
+                  }
+           }
+
             _currentImage = image;
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
         }
+
+        private void Save()
+        {
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "PNG Image (*.png)|*.png",
+                FileName = "image"
+            };
+
+            bool? result = dialog.ShowDialog();
+            if (result != true)  return;
+
+            //...
+        }
+
+        private void DeleteImage()
+        {
+             _currentImage = null;
+            CurrentBitmap = null;
+
+        }
+
 
         private void Crop()
         {
