@@ -48,6 +48,7 @@ namespace PhotoEditor.Wpf.ViewModels
             EditPixelCommand = new RelayCommand(EditPixel);
             SaveCommand = new RelayCommand(Save);
             DeleteImageCommand = new RelayCommand(DeleteImage);
+            SaveProjectCommand = new RelayCommand(SaveProject);
             
         }
 
@@ -64,6 +65,7 @@ namespace PhotoEditor.Wpf.ViewModels
             EditPixelCommand = new RelayCommand(EditPixel);
             SaveCommand = new RelayCommand(Save);
             DeleteImageCommand = new RelayCommand(DeleteImage);
+            SaveProjectCommand = new RelayCommand(SaveProject);
         }
 
         public BitmapSource? CurrentBitmap
@@ -86,6 +88,8 @@ namespace PhotoEditor.Wpf.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand DeleteImageCommand { get; }
         public ICommand OpenProjectCommand { get; }
+        public ICommand SaveProjectCommand { get; }
+
 
 
         public bool HasImage
@@ -184,6 +188,20 @@ namespace PhotoEditor.Wpf.ViewModels
             RestoreActiveImage();
         }
 
+        private void SaveProject()
+        {
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "Project (*.json)|*.json",
+                FileName = "project"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            var storage = new ProjectFileStorage(new JsonProjectSerializer());
+            storage.Save(_project, dialog.FileName);
+        }
 
         private void Save()
         {
