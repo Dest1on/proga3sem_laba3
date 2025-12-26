@@ -19,12 +19,6 @@ using PhotoEditor.Infrastructure;
 
 namespace PhotoEditor.Wpf.ViewModels
 {
-     public enum FilterType
-        {
-            None,
-            BrightnessPlus50,
-            BrightnessMinus50
-        }
 
     public class MainViewModel : INotifyPropertyChanged
     { 
@@ -97,18 +91,6 @@ namespace PhotoEditor.Wpf.ViewModels
             get
             {
                 return _currentImage != null;
-            }
-        }
-
-        private FilterType _selectedFilter = FilterType.None;
-        public FilterType SelectedFilter
-        {
-            get => _selectedFilter;
-            set
-            {
-                _selectedFilter = value;
-                OnPropertyChanged();
-                ApplySelectedFilter();
             }
         }
 
@@ -278,9 +260,9 @@ namespace PhotoEditor.Wpf.ViewModels
             
         }
 
-        private void ApplyFilter()
+        private void Filter()
         {
-            ApplySelectedFilter();
+            ApplyFilter();
             
         }
 
@@ -366,53 +348,37 @@ namespace PhotoEditor.Wpf.ViewModels
                     return new CropOperation(0, 0, width, height);
             }
         }
-
-        ///Применение фильтра
-
-        private void ApplySelectedFilter()
+        private void ApplyFilter()
         {
             if (_currentImage == null) return;
 
-            var dialog = new FilterDialog();
+            var dialog = new FilterDialog
+            {
+                Owner = System.Windows.Application.Current.MainWindow
+            };
+
             if (dialog.ShowDialog() != true) return;
 
-            switch (dialog.SelectedFilter)
+            // Пока у нас только яркость
+            int delta = dialog.BrightnessValue;
+
+            var operation = new BrightnessOperation(delta);
+            _currentImage = operation.Apply(_currentImage);
+
+            if (_activeAsset != null)
             {
-                case FilterType.BrightnessPlus50:
-                    _currentImage = new BrightnessOperation(50).Apply(_currentImage);
-
-                    if (_activeAsset != null)
-                    {
-                        _project.Operations.Add(new OperationRecord
-                        {
-                            AssetId = _activeAsset.Id,
-                            OperationType = "Brightness",
-                            Parameters = "delta=50"
-                        });
-                    }
-                    break;
-
-                case FilterType.BrightnessMinus50:
-                    _currentImage = new BrightnessOperation(-50).Apply(_currentImage);
-
-                    if (_activeAsset != null)
-                    {
-                        _project.Operations.Add(new OperationRecord
-                        {
-                            AssetId = _activeAsset.Id,
-                            OperationType = "Brightness",
-                            Parameters = "delta=-50"
-                        });
-                    }
-                    break;
-
-                case FilterType.None:
-                    return;
+                 _project.Operations.Add(new OperationRecord
+                {
+                    AssetId = _activeAsset.Id,
+                    OperationType = "Brightness",
+                    Parameters = $"delta={delta}"
+                });
             }
-
 
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
         }
+
+            
         
         private void RestoreActiveImage()
         {

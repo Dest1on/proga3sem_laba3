@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:PhotoEditor.Wpf.ViewModels"
         xmlns:local="clr-namespace:PhotoEditor.Wpf.ViewModels"
         Title="Photo Editor"
-        Width="900"
+        Width="950"
         Height="600"
         WindowStartupLocation="CenterScreen">
 
