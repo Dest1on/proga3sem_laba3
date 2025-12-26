@@ -1,4 +1,4 @@
-using System.Drawing;
+using PhotoEditor.Core.Images;
 
 namespace PhotoEditor.Core.Images
 {
@@ -8,8 +8,8 @@ public interface IImage
     int Width { get; }
     int Height { get; }
 
-    Color GetPixel(int x, int y);
-    void SetPixel(int x, int y, Color color);
+    PixelColor GetPixel(int x, int y);
+    void SetPixel(int x, int y, PixelColor color);
 }
 
 }
