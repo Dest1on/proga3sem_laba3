@@ -9,6 +9,9 @@ using System.Windows.Media.Imaging;
 using PhotoEditor.Core.Images;
 using PhotoEditor.Wpf.Adapters;
 using PhotoEditor.Wpf.Commands;
+using PhotoEditor.Core.Operations;
+using PhotoEditor.Wpf.Views;
+
 
 namespace PhotoEditor.Wpf.ViewModels
 {
@@ -139,12 +142,21 @@ namespace PhotoEditor.Wpf.ViewModels
         {
              _currentImage = null;
             CurrentBitmap = null;
+            OnPropertyChanged(nameof(HasImage));
 
         }
 
 
         private void Crop()
         {
+            if (_currentImage == null) return;
+            var dialog = new CropDialog();
+
+            if (dialog.ShowDialog() != true) return;
+
+            var operation = CreateCropOperation(dialog.SelectedTemplate);
+            _currentImage = operation.Apply(_currentImage);
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
             
         }
 
@@ -180,5 +192,39 @@ namespace PhotoEditor.Wpf.ViewModels
             PropertyChanged?.Invoke(this,new PropertyChangedEventArgs(propertyName));
 
         }
+
+        private CropOperation CreateCropOperation(CropTemplate template)
+        {
+            int width = _currentImage!.Width;
+            int height = _currentImage!.Height;
+    
+            switch (template)
+            {
+                case CropTemplate.Square:
+                    if (width > height)
+                    {
+                        return new CropOperation((width - height) / 2, 0, height, height);
+                     }
+                    else
+                    {
+                        return new CropOperation(0, (height - width) / 2, width, width);
+                    }
+            
+                case CropTemplate.Ratio16x9:
+                    return new CropOperation(0, 0, width, width * 9 / 16);
+            
+                case CropTemplate.Ratio4x3:
+                    return new CropOperation(0, 0, width, width * 3 / 4);
+            
+                case CropTemplate.Center:
+                    return new CropOperation(width / 4, height / 4, width / 2, height / 2);
+            
+                default:
+                    return new CropOperation(0, 0, width, height);
     }
+}
+    }
+
+    
+
 }

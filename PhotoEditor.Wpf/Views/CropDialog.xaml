@@ -1,0 +1,28 @@
+<Window x:Class="PhotoEditor.Wpf.Views.CropDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Обрезка"
+        Width="250"
+        Height="200"
+        WindowStartupLocation="CenterOwner">
+
+    <StackPanel Margin="15">
+
+        <TextBlock Text="Выберите шаблон:" Margin="0,0,0,10"/>
+
+        <ComboBox x:Name="TemplateBox" SelectedIndex="0">
+            <ComboBoxItem Content="Квадрат (1:1)"/>
+            <ComboBoxItem Content="Прямоугольник 16:9"/>
+            <ComboBoxItem Content="Прямоугольник 4:3"/>
+            <ComboBoxItem Content="По центру"/>
+        </ComboBox>
+
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,20,0,0">
+            <Button Content="OK" Width="80" Margin="5" Click="OkClick"/>
+            <Button Content="Отмена" Width="80" Margin="5" Click="CancelClick"/>
+        </StackPanel>
+
+    </StackPanel>
+</Window>
