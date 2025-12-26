@@ -28,6 +28,8 @@ namespace PhotoEditor.Wpf.ViewModels
             AddTextCommand = new RelayCommand(AddText);
             CreateCollageCommand = new RelayCommand(CreateCollage);
             EditPixelCommand = new RelayCommand(EditPixel);
+            SaveCommand = new RelayCommand(Save);
+            DeleteImageCommand = new RelayCommand(DeleteImage);
         }
 
         public MainViewModel()
@@ -40,6 +42,8 @@ namespace PhotoEditor.Wpf.ViewModels
             AddTextCommand = new RelayCommand(AddText);
             CreateCollageCommand = new RelayCommand(CreateCollage);
             EditPixelCommand = new RelayCommand(EditPixel);
+            SaveCommand = new RelayCommand(Save);
+            DeleteImageCommand = new RelayCommand(DeleteImage);
         }
 
         public BitmapSource? CurrentBitmap
@@ -59,6 +63,8 @@ namespace PhotoEditor.Wpf.ViewModels
         public ICommand AddTextCommand { get; }
         public ICommand CreateCollageCommand { get; }
         public ICommand EditPixelCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand DeleteImageCommand { get; }
     
 
         private void OpenImage()
@@ -104,6 +110,27 @@ namespace PhotoEditor.Wpf.ViewModels
 
             _currentImage = image;
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
+        }
+
+        private void Save()
+        {
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "PNG Image (*.png)|*.png",
+                FileName = "image"
+            };
+
+            bool? result = dialog.ShowDialog();
+            if (result != true)  return;
+
+            //...
+        }
+
+        private void DeleteImage()
+        {
+             _currentImage = null;
+            CurrentBitmap = null;
+
         }
 
 
