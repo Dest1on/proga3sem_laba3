@@ -2,12 +2,13 @@
 # .NET / Visual Studio
 # =====================
 
+# Build output
 bin/
 obj/
 [Bb]uild/
 [Ll]og/
 
-# IDEs
+# Rider / VS / VS Code / IntelliJ
 .vs/
 .vscode/
 .idea/
@@ -16,12 +17,12 @@ obj/
 *.user
 *.rsuser
 *.suo
+*.userosscache
+*.sln.docstates
 
 # NuGet
-*.nupkg
-*.snupkg
-.nuget/
 packages/
+.nuget/
 project.assets.json
 project.nuget.cache
 *.nuget.dgspec.json
@@ -32,16 +33,29 @@ project.nuget.cache
 *.dll
 *.exe
 *.pdb
+*.ilk
+*.exp
+*.lib
 
-# Cache
-*.cache
-*.tmp
+# SourceLink
+*.sourcelink.json
 
-# Assembly / auto-generated
+# MSBuild
 *.AssemblyAttributes.cs
 *.AssemblyInfo.cs
 GeneratedMSBuildEditorConfig.editorconfig
 
+# Cache / temp
+*.cache
+*.tmp
+*.log
+
 # OS
 .DS_Store
 Thumbs.db
+
+# Test results
+TestResults/
+
+# Publish output
+publish/
