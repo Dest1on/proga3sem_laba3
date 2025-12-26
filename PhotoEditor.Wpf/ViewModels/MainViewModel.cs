@@ -172,21 +172,37 @@ namespace PhotoEditor.Wpf.ViewModels
         }
 
         private void OpenProject()
+    {
+        OpenFileDialog dialog = new OpenFileDialog
         {
-            OpenFileDialog dialog = new OpenFileDialog
-            {
-                Filter = "Project (*.json)|*.json"
-            };
+            Filter = "Project (*.json)|*.json"
+        };
 
-            if (dialog.ShowDialog() != true)
-                return;
+        if (dialog.ShowDialog() != true)
+            return;
 
+        try
+        {
             var storage = new ProjectFileStorage(new JsonProjectSerializer());
+            var loaded = storage.Load(dialog.FileName);
 
-            _project = storage.Load(dialog.FileName);
+            if (loaded == null)
+                throw new InvalidOperationException("Project deserialization returned null.");
+
+            _project = loaded;
 
             RestoreActiveImage();
         }
+        catch (Exception ex)
+        {
+            System.Windows.MessageBox.Show(
+                ex.ToString(),
+                "Ошибка при открытии проекта",
+                System.Windows.MessageBoxButton.OK,
+                System.Windows.MessageBoxImage.Error
+            );
+        }
+    }
 
         private void SaveProject()
         {
@@ -324,6 +340,33 @@ namespace PhotoEditor.Wpf.ViewModels
             }
         }
 
+        private CropOperation CreateCropOperation(CropTemplate template, IImage image)
+        {
+            int width = image.Width;
+            int height = image.Height;
+
+            switch (template)
+            {
+                case CropTemplate.Square:
+                    if (width > height)
+                        return new CropOperation((width - height) / 2, 0, height, height);
+                    else
+                        return new CropOperation(0, (height - width) / 2, width, width);
+
+                case CropTemplate.Ratio16x9:
+                    return new CropOperation(0, 0, width, width * 9 / 16);
+
+                case CropTemplate.Ratio4x3:
+                    return new CropOperation(0, 0, width, width * 3 / 4);
+
+                case CropTemplate.Center:
+                    return new CropOperation(width / 4, height / 4, width / 2, height / 2);
+
+                default:
+                    return new CropOperation(0, 0, width, height);
+            }
+        }
+
         ///Применение фильтра
 
         private void ApplySelectedFilter()
@@ -446,7 +489,7 @@ namespace PhotoEditor.Wpf.ViewModels
                     var template = Enum.Parse<CropTemplate>(
                         record.Parameters.Split('=')[1]
                     );
-                    var cropOp = CreateCropOperation(template);
+                    var cropOp = CreateCropOperation(template, image);
                     return cropOp.Apply(image);
 
                 default:
