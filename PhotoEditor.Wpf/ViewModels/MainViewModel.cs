@@ -11,6 +11,8 @@ using PhotoEditor.Wpf.Adapters;
 using PhotoEditor.Wpf.Commands;
 using PhotoEditor.Core.Operations;
 using PhotoEditor.Wpf.Views;
+using PhotoEditor.Core;
+using PhotoEditor.Core.Project;
 
 
 namespace PhotoEditor.Wpf.ViewModels
@@ -27,6 +29,9 @@ namespace PhotoEditor.Wpf.ViewModels
         private readonly IWpfImageAdapter _imageAdapter;
         private BitmapSource? _currentBitmap;
         private IImage? _currentImage;
+        private PhotoProject _project = new PhotoProject();
+        private ImageAsset? _activeAsset;
+
 
         public MainViewModel(IWpfImageAdapter imageAdapter)
         {
@@ -138,6 +143,19 @@ namespace PhotoEditor.Wpf.ViewModels
            }
 
             _currentImage = image;
+
+            _activeAsset = new PhotoEditor.Core.ImageAsset
+            {
+                FileName = System.IO.Path.GetFileName(dialog.FileName),
+                SourcePath = dialog.FileName,
+                Width = bitmap.PixelWidth,
+                Height = bitmap.PixelHeight
+            };
+
+            _project.Assets.Add(_activeAsset);
+            _project.ActiveAssetId = _activeAsset.Id;
+
+
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
             OnPropertyChanged(nameof(HasImage));
         }
@@ -182,6 +200,16 @@ namespace PhotoEditor.Wpf.ViewModels
 
             var operation = CreateCropOperation(dialog.SelectedTemplate);
             _currentImage = operation.Apply(_currentImage);
+            if (_activeAsset != null)
+{
+            _project.Operations.Add(new OperationRecord
+            {
+                AssetId = _activeAsset.Id,
+                OperationType = "Crop",
+                Parameters = $"template={dialog.SelectedTemplate}"
+            });
+}
+
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
             
         }
@@ -266,12 +294,36 @@ namespace PhotoEditor.Wpf.ViewModels
             {
                 case FilterType.BrightnessPlus50:
                     _currentImage = new BrightnessOperation(50).Apply(_currentImage);
+
+                    if (_activeAsset != null)
+                    {
+                        _project.Operations.Add(new OperationRecord
+                        {
+                            AssetId = _activeAsset.Id,
+                            OperationType = "Brightness",
+                            Parameters = "delta=50"
+                        });
+                    }
                     break;
+
                 case FilterType.BrightnessMinus50:
                     _currentImage = new BrightnessOperation(-50).Apply(_currentImage);
+
+                    if (_activeAsset != null)
+                    {
+                        _project.Operations.Add(new OperationRecord
+                        {
+                            AssetId = _activeAsset.Id,
+                            OperationType = "Brightness",
+                            Parameters = "delta=-50"
+                        });
+                    }
                     break;
-                case FilterType.None: return;
+
+                case FilterType.None:
+                    return;
             }
+
 
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
         }
