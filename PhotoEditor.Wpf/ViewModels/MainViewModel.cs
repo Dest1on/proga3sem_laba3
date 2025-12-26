@@ -65,7 +65,15 @@ namespace PhotoEditor.Wpf.ViewModels
         public ICommand EditPixelCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand DeleteImageCommand { get; }
-    
+
+        public bool HasImage
+        {
+            get
+            {
+                return _currentImage != null;
+            }
+        }
+
 
         private void OpenImage()
         {
@@ -110,6 +118,7 @@ namespace PhotoEditor.Wpf.ViewModels
 
             _currentImage = image;
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
+            OnPropertyChanged(nameof(HasImage));
         }
 
         private void Save()
