@@ -198,7 +198,23 @@ namespace PhotoEditor.Wpf.ViewModels
         {
              _currentImage = null;
             CurrentBitmap = null;
+
+            // Находим последнюю операцию коллажа
+            var lastCollage = _project.Operations
+                .Where(o => o.OperationType == "Collage")
+                .LastOrDefault();
+
+            if (lastCollage != null && !string.IsNullOrWhiteSpace(lastCollage.Parameters))
+            {
+                var usedIds = lastCollage.Parameters.Split(',')
+                    .Select(Guid.Parse)
+                    .ToList();
+                
+                _project.Assets.RemoveAll(a => usedIds.Contains(a.Id));
+            }
+
             OnPropertyChanged(nameof(HasImage));
+
 
         }
 
@@ -244,13 +260,16 @@ namespace PhotoEditor.Wpf.ViewModels
 
         private void CreateCollage()
         {
-            if (_project.Assets.Count == 0) return;
+            var activeAssets = _project.Assets.Where(a => File.Exists(a.SourcePath)).ToList();
+            if (activeAssets.Count == 0) return;
+
 
             int targetSize = 600; // размер коллажа
             int count = _project.Assets.Count;
             int perRow = (int)Math.Ceiling(Math.Sqrt(count));
             int cellSize = targetSize / perRow;
 
+    
             var collage = new RenderTargetBitmap(targetSize, targetSize, 96, 96, PixelFormats.Pbgra32);
 
             var dv = new DrawingVisual();
@@ -258,7 +277,7 @@ namespace PhotoEditor.Wpf.ViewModels
             {
                 for (int i = 0; i < count; i++)
                 {
-                    var asset = _project.Assets[i];
+                    var asset = activeAssets[i];
                     if (!File.Exists(asset.SourcePath)) continue;
 
                     BitmapImage bmp = new BitmapImage(new Uri(asset.SourcePath));
@@ -293,6 +312,10 @@ namespace PhotoEditor.Wpf.ViewModels
 
             _currentImage = image;
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
+
+
+            
+
 
             
         }
@@ -445,57 +468,14 @@ namespace PhotoEditor.Wpf.ViewModels
                     var cropOp = CreateCropOperation(template, image);
                     return cropOp.Apply(image);
 
+
                 default:
                     return image;
             }
         }
 
-        private bool CanCreateCollage()
-        {
-            if (_project.Assets.Count < 2)
-            {
-                System.Windows.MessageBox.Show("Для коллажа нужно минимум 2 изображения","Коллаж");
-                return false;
-            }
 
-            return true;
-        }
 
-        private IImage? LoadImage(ImageAsset asset)
-        {
-            if (!File.Exists(asset.SourcePath)) return null;
-
-            BitmapImage bitmap = new BitmapImage();
-            using (var stream = new FileStream(asset.SourcePath, FileMode.Open))
-            {
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = stream;
-                bitmap.EndInit();
-            }
-                bitmap.Freeze();
-
-            var image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
-            int stride = bitmap.PixelWidth * 4;
-            byte[] pixels = new byte[bitmap.PixelHeight * stride];
-            bitmap.CopyPixels(pixels, stride, 0);
-
-            for (int y = 0; y < bitmap.PixelHeight; y++)
-            {
-                for (int x = 0; x < bitmap.PixelWidth; x++)
-                {
-                    int index = y * stride + x * 4;
-                    image.SetPixel(x, y,
-                    new PixelColor(
-                    pixels[index + 2],
-                    pixels[index + 1],
-                    pixels[index],
-                    pixels[index + 3]));
-                }
-            }
-
-            return image;
-            }
 
         private InMemoryImage LoadInMemoryImage(string path)
         {
