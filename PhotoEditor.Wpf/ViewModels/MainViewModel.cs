@@ -1,4 +1,7 @@
 using Microsoft.Win32;
+using System.Windows;
+using System.Windows.Media;
+
 using System;
 using System.Drawing;
 using System.IO;
@@ -103,46 +106,14 @@ namespace PhotoEditor.Wpf.ViewModels
             bool? result = dialog.ShowDialog();
             if (result != true) return;
 
-            BitmapImage bitmap = new BitmapImage();
-
-            using (FileStream stream = new FileStream(dialog.FileName, FileMode.Open, FileAccess.Read))
-            {
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = stream;
-                bitmap.EndInit();
-            }
-
-            bitmap.Freeze();
-
-            InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
-            int stride = bitmap.PixelWidth * 4;
-            byte[] pixels = new byte[bitmap.PixelHeight * stride];
-            bitmap.CopyPixels(pixels, stride, 0);
-
-            for (int y = 0; y < bitmap.PixelHeight; y++)
-            {
-                for (int x = 0; x < bitmap.PixelWidth; x++)
-                {
-                    int index = y * stride + x * 4;
-
-                    byte b = pixels[index];
-                    byte g = pixels[index + 1];
-                    byte r = pixels[index + 2];
-                    byte a = pixels[index + 3];
-
-                    image.SetPixel(x, y, new PixelColor(r, g, b, a));
-                  }
-           }
-
-            _currentImage = image;
+             _currentImage = LoadInMemoryImage(dialog.FileName);
 
             _activeAsset = new PhotoEditor.Core.ImageAsset
             {
-                FileName = System.IO.Path.GetFileName(dialog.FileName),
+                FileName = Path.GetFileName(dialog.FileName),
                 SourcePath = dialog.FileName,
-                Width = bitmap.PixelWidth,
-                Height = bitmap.PixelHeight
+                Width = _currentImage.Width,
+                Height = _currentImage.Height
             };
 
             _project.Assets.Add(_activeAsset);
@@ -260,9 +231,9 @@ namespace PhotoEditor.Wpf.ViewModels
             
         }
 
-        private void Filter()
+        private void ApplyFilter()
         {
-            ApplyFilter();
+            ApplySelectedFilter();
             
         }
 
@@ -273,6 +244,56 @@ namespace PhotoEditor.Wpf.ViewModels
 
         private void CreateCollage()
         {
+            if (_project.Assets.Count == 0) return;
+
+            int targetSize = 600; // размер коллажа
+            int count = _project.Assets.Count;
+            int perRow = (int)Math.Ceiling(Math.Sqrt(count));
+            int cellSize = targetSize / perRow;
+
+            var collage = new RenderTargetBitmap(targetSize, targetSize, 96, 96, PixelFormats.Pbgra32);
+
+            var dv = new DrawingVisual();
+            using (var dc = dv.RenderOpen())
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    var asset = _project.Assets[i];
+                    if (!File.Exists(asset.SourcePath)) continue;
+
+                    BitmapImage bmp = new BitmapImage(new Uri(asset.SourcePath));
+
+                    int row = i / perRow;
+                    int col = i % perRow;
+
+                    Rect rect = new Rect(col * cellSize, row * cellSize, cellSize, cellSize);
+                    dc.DrawImage(bmp, rect);
+                }
+            }
+
+            collage.Render(dv);
+
+            var image = new InMemoryImage(targetSize, targetSize);
+            int stride = targetSize * 4;
+            byte[] pixels = new byte[targetSize * stride];
+            collage.CopyPixels(pixels, stride, 0);
+
+            for (int y = 0; y < targetSize; y++)
+            {
+                for (int x = 0; x < targetSize; x++)
+                {
+                    int index = y * stride + x * 4;
+                    byte b = pixels[index];
+                    byte g = pixels[index + 1];
+                    byte r = pixels[index + 2];
+                    byte a = pixels[index + 3];
+                    image.SetPixel(x, y, new PixelColor(r, g, b, a));
+                }
+            }
+
+            _currentImage = image;
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
+
             
         }
 
@@ -348,7 +369,7 @@ namespace PhotoEditor.Wpf.ViewModels
                     return new CropOperation(0, 0, width, height);
             }
         }
-        private void ApplyFilter()
+        private void ApplySelectedFilter()
         {
             if (_currentImage == null) return;
 
@@ -392,39 +413,7 @@ namespace PhotoEditor.Wpf.ViewModels
             if (!File.Exists(_activeAsset.SourcePath)) return;
 
             // 1. Загружаем исходное изображение
-            BitmapImage bitmap = new BitmapImage();
-            using (FileStream stream = new FileStream(_activeAsset.SourcePath, FileMode.Open, FileAccess.Read))
-            {
-                bitmap.BeginInit();
-                bitmap.CacheOption = BitmapCacheOption.OnLoad;
-                bitmap.StreamSource = stream;
-                bitmap.EndInit();
-            }
-            bitmap.Freeze();
-
-            InMemoryImage image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
-            int stride = bitmap.PixelWidth * 4;
-            byte[] pixels = new byte[bitmap.PixelHeight * stride];
-            bitmap.CopyPixels(pixels, stride, 0);
-
-            for (int y = 0; y < bitmap.PixelHeight; y++)
-            {
-                for (int x = 0; x < bitmap.PixelWidth; x++)
-                {
-                    int index = y * stride + x * 4;
-                    image.SetPixel(
-                        x, y,
-                        new PixelColor(
-                            pixels[index + 2],
-                            pixels[index + 1],
-                            pixels[index],
-                            pixels[index + 3]
-                        )
-                    );
-                }
-            }
-
-            IImage current = image;
+            _currentImage = LoadInMemoryImage(_activeAsset.SourcePath);
 
             // 2. Применяем операции по порядку
             var operations = _project.Operations
@@ -433,10 +422,8 @@ namespace PhotoEditor.Wpf.ViewModels
 
             foreach (var op in operations)
             {
-                current = ApplyOperation(current, op);
+                _currentImage = ApplyOperation(_currentImage, op);
             }
-
-            _currentImage = current;
 
             CurrentBitmap = _imageAdapter.Convert(_currentImage);
             OnPropertyChanged(nameof(HasImage));
@@ -462,6 +449,91 @@ namespace PhotoEditor.Wpf.ViewModels
                     return image;
             }
         }
+
+        private bool CanCreateCollage()
+        {
+            if (_project.Assets.Count < 2)
+            {
+                System.Windows.MessageBox.Show("Для коллажа нужно минимум 2 изображения","Коллаж");
+                return false;
+            }
+
+            return true;
+        }
+
+        private IImage? LoadImage(ImageAsset asset)
+        {
+            if (!File.Exists(asset.SourcePath)) return null;
+
+            BitmapImage bitmap = new BitmapImage();
+            using (var stream = new FileStream(asset.SourcePath, FileMode.Open))
+            {
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+            }
+                bitmap.Freeze();
+
+            var image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
+            int stride = bitmap.PixelWidth * 4;
+            byte[] pixels = new byte[bitmap.PixelHeight * stride];
+            bitmap.CopyPixels(pixels, stride, 0);
+
+            for (int y = 0; y < bitmap.PixelHeight; y++)
+            {
+                for (int x = 0; x < bitmap.PixelWidth; x++)
+                {
+                    int index = y * stride + x * 4;
+                    image.SetPixel(x, y,
+                    new PixelColor(
+                    pixels[index + 2],
+                    pixels[index + 1],
+                    pixels[index],
+                    pixels[index + 3]));
+                }
+            }
+
+            return image;
+            }
+
+        private InMemoryImage LoadInMemoryImage(string path)
+        {
+            BitmapImage bitmap = new BitmapImage();
+            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = stream;
+                bitmap.EndInit();
+            }
+            bitmap.Freeze();
+
+            var image = new InMemoryImage(bitmap.PixelWidth, bitmap.PixelHeight);
+            int stride = bitmap.PixelWidth * 4;
+            byte[] pixels = new byte[bitmap.PixelHeight * stride];
+            bitmap.CopyPixels(pixels, stride, 0);
+
+            for (int y = 0; y < bitmap.PixelHeight; y++)
+            {
+                for (int x = 0; x < bitmap.PixelWidth; x++)
+                {
+                    int i = y * stride + x * 4;
+                    image.SetPixel(x, y,new PixelColor(
+                    pixels[i + 2],
+                    pixels[i + 1],
+                    pixels[i],
+                    pixels[i + 3]));
+                }
+            }
+
+            return image;
+        }
+
+        
+
+
+
 
 
     }
