@@ -244,8 +244,14 @@ namespace PhotoEditor.Wpf.ViewModels
 
         private void Rotate()
         {
-            
+            if (_currentImage == null) 
+                return;
+
+            var op = new RotateOperation();
+            _currentImage = op.Apply(_currentImage);
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
         }
+
 
         private void ApplyFilter()
         {
@@ -255,8 +261,18 @@ namespace PhotoEditor.Wpf.ViewModels
 
         private void AddText()
         {
-            
+            if (_currentImage == null) return;
+
+            var op = new DrawTextOperation(
+                20, 20,
+                60, 20,
+                new PixelColor(0, 0, 255)
+            );
+
+            _currentImage = op.Apply(_currentImage);
+            CurrentBitmap = _imageAdapter.Convert(_currentImage);
         }
+
 
         private void CreateCollage()
         {
